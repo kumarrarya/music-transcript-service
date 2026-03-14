@@ -1,5 +1,6 @@
 package com.user.transcription.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.transcription.service.IStorageService;
 import com.user.transcription.service.ITranscriptionService;
 import lombok.SneakyThrows;
@@ -16,6 +17,9 @@ import java.io.InputStream;
 public class TranscriptionServiceImpl implements ITranscriptionService {
 
     @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
     IStorageService storageService;
 
     @Value("${elevenlabs.api.key}")
@@ -28,7 +32,7 @@ public class TranscriptionServiceImpl implements ITranscriptionService {
     public String transcribeAudio(String audioFilePath) {
 
         try {
-            InputStream stream = storageService.getInputStream(audioFilePath);
+            InputStream stream = storageService.getRawInputStream(audioFilePath);
 
             byte[] audioBytes = stream.readAllBytes();
 
@@ -51,15 +55,14 @@ public class TranscriptionServiceImpl implements ITranscriptionService {
                     .post(requestBody)
                     .build();
 
-            Response response = client.newCall(request).execute();
-
+            //Response response = client.newCall(request).execute();
+            String mockText = "This is a mock transcript for testing purposes. The actual transcription logic is commented out to avoid making real API calls during development.";
             try {
-                String transcript = response.body().string();
-
-                log.info("transcript : {}", transcript);
-
-                return transcript;
-
+                String transcript;
+                ObjectMapper objectMapper = new ObjectMapper();
+                //transcript = objectMapper.readTree(response.body().string()).get("text").asText();
+                log.info("transcript : {}", mockText);
+                return mockText;
             } catch (Exception e) {
                 log.info("Error : {}", e.getMessage());
             }

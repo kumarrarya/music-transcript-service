@@ -8,5 +8,6 @@ import java.io.InputStream;
 @Service
 public interface IStorageService {
     String generatePresignedUrl(String fileName);
-    InputStream getInputStream(String fileName);
+    InputStream getRawInputStream(String fileName);
+    boolean publishAudioTranscriptionResult(String transcribedFile,String fileName);
 }
