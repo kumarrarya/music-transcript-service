@@ -1,8 +1,12 @@
-package com.user.music.transcript.web.service;
+package com.user.transcription.service;
 
+import io.minio.messages.UserMetadata;
 import org.springframework.stereotype.Service;
+
+import java.io.InputStream;
 
 @Service
 public interface IStorageService {
-    public String generatePresignedUrl(String fileName);
+    String generatePresignedUrl(String fileName);
+    InputStream getInputStream(String fileName);
 }
