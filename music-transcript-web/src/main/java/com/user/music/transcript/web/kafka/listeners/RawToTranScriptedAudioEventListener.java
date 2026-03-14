@@ -1,6 +1,5 @@
 package com.user.music.transcript.web.kafka.listeners;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.music.transcript.web.config.KafkaConfigProperties;
 import com.user.music.transcript.web.config.TopicConfig;
 import com.user.music.transcript.web.templates.KafkaBaseTemplate;
@@ -17,10 +16,7 @@ import static com.user.music.transcript.web.config.KafkaConfigProperties.AUDIO_T
 
 @Slf4j
 @Configuration
-public class AudioTranscriptionEventListener extends KafkaBaseTemplate {
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public class RawToTranScriptedAudioEventListener extends KafkaBaseTemplate {
 
     @Autowired
     private TopicConfig topicConfig;

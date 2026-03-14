@@ -3,7 +3,7 @@ package com.user.music.transcript.web.kafka.handler.consumer;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.user.music.transcript.web.Entity.UserMusicData;
-import com.user.music.transcript.web.Request.AudioUploadRequest;
+import com.user.music.transcript.web.Request.RawAudioUploadRequest;
 import com.user.music.transcript.web.enums.MsgResultEnum;
 import com.user.music.transcript.web.enums.Status;
 import com.user.music.transcript.web.kafka.eventProcessors.EventMessageProcessor;
@@ -18,7 +18,7 @@ import java.util.Date;
 
 @Slf4j
 @Component
-public class audioUploadEventHandler implements EventMessageProcessor {
+public class RawAudioUploadEventHandler implements EventMessageProcessor {
 
     @Autowired
     private IUserMusicDataService userMusicDataService;
@@ -26,7 +26,7 @@ public class audioUploadEventHandler implements EventMessageProcessor {
     @Override
     @SneakyThrows
     public MsgProcessResult register(String message) {
-        AudioUploadRequest request = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(message, AudioUploadRequest.class);
+        RawAudioUploadRequest request = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(message, RawAudioUploadRequest.class);
         MsgProcessResult msgProcessResult = new MsgProcessResult();
         msgProcessResult.setMsgResultEnum(MsgResultEnum.SUCCESS);
         boolean isSuccess;
@@ -40,10 +40,10 @@ public class audioUploadEventHandler implements EventMessageProcessor {
         return msgProcessResult;
     }
 
-    private UserMusicData getUserMusicData(AudioUploadRequest request){
+    private UserMusicData getUserMusicData(RawAudioUploadRequest request){
         String[] parts = request.getKey().split("/");
 
-        String userId = parts[1];
+        String userId = parts[2];
         String url = parts[3];
 
         return UserMusicData.builder()

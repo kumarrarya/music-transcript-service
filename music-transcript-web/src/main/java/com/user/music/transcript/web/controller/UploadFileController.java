@@ -20,7 +20,7 @@ public class UploadFileController {
     @GetMapping("/upload")
     public ResponseEntity<String> upload(@RequestParam Long userId){
         try {
-            String presignedUrl = userMetaDataService.uploadFile(userId);
+            String presignedUrl = userMetaDataService.publishRawFile(userId);
             return ResponseEntity.ok(presignedUrl);
         }catch (Exception e){
             log.info("unable to upload file", e);

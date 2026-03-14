@@ -2,8 +2,9 @@ package com.user.music.transcript.web.service.impl;
 
 import com.user.music.transcript.web.Entity.UserData;
 import com.user.music.transcript.web.Entity.UserMusicData;
-import com.user.music.transcript.web.Request.AudioTranscriptionRequest;
+import com.user.music.transcript.web.Request.AudioUploadRequest;
 import com.user.music.transcript.web.dao.IGenericDao;
+import com.user.transcription.constants.Constant;
 import com.user.transcription.service.IStorageService;
 import com.user.music.transcript.web.service.IUserMusicDataService;
 import com.user.music.transcript.web.util.ProducerUtil;
@@ -29,32 +30,34 @@ public class UserMetaDataServiceImpl implements IUserMusicDataService {
 
     @Override
     @Transactional
-    public String uploadFile(Long userId) {
+    public String publishRawFile(Long userId) {
         Optional<UserData> userData = iGenericDao.findById(Map.of("userId", userId), UserData.class);
         if(userData.isEmpty()) throw new IllegalArgumentException("UserData not found");
-        String audioFile = getAudioFileName(userId);
+        String audioFile = getAudioFileName(userId,Constant.RAW_AUDIO);
         return storageService.generatePresignedUrl(audioFile);
+    }
+
+    @Override
+    public boolean upsertTranscribedFile(UserMusicData userMusicData) {
+        iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId()), UserMusicData.class);
+        String audioFile = getAudioFileName(userMusicData.getUserId(), Constant.TRANSCRIBED_AUDIO);
+        return storageService.publishAudioTranscriptionResult(userMusicData.getTranscriptUrl(), audioFile);
     }
 
     @Override
     @Transactional
     public boolean upsertRawAudioUpload(UserMusicData userMusicData) {
         iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId()), UserMusicData.class);
-        producerUtil.buildAudioTranscriptionEvent(userMusicData);
+        producerUtil.buildAudioTranscriptionEvent(userMusicData.getUserId(), userMusicData.getAudioUrl());
         return true;
     }
 
     @Override
-    public boolean upsertAudioTranscriptionResult(UserMusicData userMusicData) {
-        return iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId()), UserMusicData.class);
-    }
-
-    @Override
-    public Optional<UserMusicData> getUserMusicData(AudioTranscriptionRequest request) {
+    public Optional<UserMusicData> getUserMusicData(AudioUploadRequest request) {
         return iGenericDao.findById(Map.of("userId", request.getUserId(), "audioUrl", request.getAudioFileUrl()), UserMusicData.class);
     }
 
-    private String getAudioFileName(Long userId){
-        return (userId + "/audio/" + UUID.randomUUID());
+    private String getAudioFileName(Long userId, String prefix) {
+        return prefix + "/" + userId + "/" + UUID.randomUUID();
     }
 }

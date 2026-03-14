@@ -4,6 +4,7 @@ import com.user.music.transcript.web.enums.TopicNameEnum;
 import com.user.music.transcript.web.config.TopicConfig;
 import com.user.music.transcript.web.kafka.eventProcessors.ProducerEventProcessor;
 import com.user.music.transcript.web.kafka.handler.producer.AudioTranscriptionResultProducer;
+import com.user.music.transcript.web.kafka.handler.producer.PublishTranscriptedAudioProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ public class HandlerProducerProcessorMap {
         Map<TopicNameEnum, String> topicNameEnumStringMap = new HashMap<>();
         topicNameEnumStringMap.put(TopicNameEnum.AUDIO_MUSIC_INFO_TOPIC, topicConfig.getAudioUploadEventTopic());
         topicNameEnumStringMap.put(TopicNameEnum.AUDIO_TRANSCRIPTION_RESULT_TOPIC, topicConfig.getAudioTranscriptResultTopic());
+        topicNameEnumStringMap.put(TopicNameEnum.PUBLISH_TRANSCRIPTION_RESULT_TOPIC, topicConfig.getPublishTranscriptResultTopic());
         return topicNameEnumStringMap;
     }
 
@@ -39,6 +41,10 @@ public class HandlerProducerProcessorMap {
         pp.put(
                 topicMap.get(TopicNameEnum.AUDIO_TRANSCRIPTION_RESULT_TOPIC),
                 List.of(applicationContext.getBean(AudioTranscriptionResultProducer.class))
+        );
+        pp.put(
+                topicMap.get(TopicNameEnum.PUBLISH_TRANSCRIPTION_RESULT_TOPIC),
+                List.of(applicationContext.getBean(PublishTranscriptedAudioProducer.class))
         );
         return pp;
     }

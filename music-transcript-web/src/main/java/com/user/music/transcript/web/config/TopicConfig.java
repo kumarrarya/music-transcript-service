@@ -18,4 +18,7 @@ public class TopicConfig {
     @Value(value = KafkaConfigProperties.AUDIO_TRANSCRIPTION_RESULT_TOPIC)
     private String audioTranscriptResultTopic;
 
+    @Value(value = KafkaConfigProperties.PUBLISH_TRANSCRIPTION_RESULT_TOPIC)
+    private String publishTranscriptResultTopic;
+
 }

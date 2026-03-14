@@ -6,11 +6,7 @@ import lombok.Data;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
-public class AudioTranscriptionRequest {
-
-    @JsonProperty("userId")
-    private Long userId;
-
-    @JsonProperty("audioFileUrl")
-    private String audioFileUrl;
+public class RawAudioUploadRequest {
+    @JsonProperty("Key")
+    private String key;
 }

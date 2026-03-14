@@ -42,11 +42,20 @@ public class HandlerConsumerProcessorMap {
         return new ArrayList<>(topicNameEnumStringMap.values());
     }
 
+    @Bean
+    public List<String> kafkaConsumerPublishTranscriptResultTopics() {
+        Map<TopicNameEnum, String> topicNameEnumStringMap = new HashMap<>();
+        topicNameEnumStringMap.put(TopicNameEnum.PUBLISH_TRANSCRIPTION_RESULT_TOPIC,
+                topicConfig.getPublishTranscriptResultTopic());
+        return new ArrayList<>(topicNameEnumStringMap.values());
+    }
+
     @Bean("consumerTopicMap")
     public Map<TopicNameEnum, String> getConsumerTopicMap() {
         Map<TopicNameEnum, String> topicNameEnumStringMap = new HashMap<>();
         topicNameEnumStringMap.put(TopicNameEnum.AUDIO_MUSIC_INFO_TOPIC, topicConfig.getAudioUploadEventTopic());
         topicNameEnumStringMap.put(TopicNameEnum.AUDIO_TRANSCRIPTION_RESULT_TOPIC, topicConfig.getAudioTranscriptResultTopic());
+        topicNameEnumStringMap.put(TopicNameEnum.PUBLISH_TRANSCRIPTION_RESULT_TOPIC, topicConfig.getPublishTranscriptResultTopic());
         return topicNameEnumStringMap;
     }
 
@@ -58,10 +67,13 @@ public class HandlerConsumerProcessorMap {
         Map<TopicNameEnum, List<EventMessageProcessor>> pp = new ConcurrentHashMap<>();
         pp.put(
                 TopicNameEnum.AUDIO_MUSIC_INFO_TOPIC,
-                Arrays.asList(getBean("audioUploadEventHandler"))
+                Arrays.asList(getBean("rawAudioUploadEventHandler"))
         );
         pp.put(TopicNameEnum.AUDIO_TRANSCRIPTION_RESULT_TOPIC,
-                Arrays.asList(getBean("audioTranscriptionHandler")));
+                Arrays.asList(getBean("rawToTranScriptedAudioHandler")));
+
+        pp.put(TopicNameEnum.PUBLISH_TRANSCRIPTION_RESULT_TOPIC,
+                Arrays.asList(getBean("tranScriptAudioUploadHandler")));
 
         return flatMap(pp, map);
     }

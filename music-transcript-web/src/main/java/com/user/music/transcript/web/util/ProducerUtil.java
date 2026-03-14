@@ -15,8 +15,18 @@ public class ProducerUtil {
     @Autowired
     private TopicConfig topicConfig;
 
-    public void buildAudioTranscriptionEvent(UserMusicData userMusicData) {
-       String message = String.format("{\"userId\": %d, \"audioFileUrl\": \"%s\"}", userMusicData.getUserId(), userMusicData.getAudioUrl());
-         kafkaEventProducer.sendEvent(message, topicConfig.getAudioTranscriptResultTopic());
+    public void buildAudioTranscriptionEvent(Long userId, String url) {
+       String message = String.format("{\"userId\": %d, \"audioFileUrl\": \"%s\"}", userId, url);
+       kafkaEventProducer.sendEvent(message, topicConfig.getAudioTranscriptResultTopic());
+    }
+
+    public void publishAudioTranscriptionResult(UserMusicData userMusicData) {
+        String message = String.format(
+                "{\"userId\": %d, \"audioFileUrl\": \"%s\", \"transcriptUrl\": \"%s\"}",
+                userMusicData.getUserId(),
+                userMusicData.getAudioUrl(),
+                userMusicData.getTranscriptUrl()
+        );
+        kafkaEventProducer.sendEvent(message, topicConfig.getPublishTranscriptResultTopic());
     }
 }
