@@ -55,14 +55,14 @@ public class TranscriptionServiceImpl implements ITranscriptionService {
                     .post(requestBody)
                     .build();
 
-            //Response response = client.newCall(request).execute();
-            String mockText = "This is a mock transcript for testing purposes. The actual transcription logic is commented out to avoid making real API calls during development.";
+            Response response = client.newCall(request).execute();
+           //String mockText = "This is a mock transcript for testing purposes. The actual transcription logic is commented out to avoid making real API calls during development.";
             try {
                 String transcript;
                 ObjectMapper objectMapper = new ObjectMapper();
-                //transcript = objectMapper.readTree(response.body().string()).get("text").asText();
-                log.info("transcript : {}", mockText);
-                return mockText;
+                transcript = objectMapper.readTree(response.body().string()).get("text").asText();
+                log.info("transcript : {}", transcript);
+                return transcript;
             } catch (Exception e) {
                 log.info("Error : {}", e.getMessage());
             }

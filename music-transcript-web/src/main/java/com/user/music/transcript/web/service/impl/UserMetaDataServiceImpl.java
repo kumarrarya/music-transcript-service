@@ -39,7 +39,7 @@ public class UserMetaDataServiceImpl implements IUserMusicDataService {
 
     @Override
     public boolean upsertTranscribedFile(UserMusicData userMusicData) {
-        iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId()), UserMusicData.class);
+        iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId(), "audioUrl", userMusicData.getAudioUrl()), UserMusicData.class);
         String audioFile = getAudioFileName(userMusicData.getUserId(), Constant.TRANSCRIBED_AUDIO);
         return storageService.publishAudioTranscriptionResult(userMusicData.getTranscriptUrl(), audioFile);
     }
@@ -47,7 +47,7 @@ public class UserMetaDataServiceImpl implements IUserMusicDataService {
     @Override
     @Transactional
     public boolean upsertRawAudioUpload(UserMusicData userMusicData) {
-        iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId()), UserMusicData.class);
+        iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId(), "audioUrl", userMusicData.getAudioUrl()), UserMusicData.class);
         producerUtil.buildAudioTranscriptionEvent(userMusicData.getUserId(), userMusicData.getAudioUrl());
         return true;
     }
