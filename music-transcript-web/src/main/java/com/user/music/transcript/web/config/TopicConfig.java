@@ -21,4 +21,6 @@ public class TopicConfig {
     @Value(value = KafkaConfigProperties.PUBLISH_TRANSCRIPTION_RESULT_TOPIC)
     private String publishTranscriptResultTopic;
 
+    @Value(value = KafkaConfigProperties.AUDIO_TRANSCRIPTION_COMPLETED_EVENT_TOPIC)
+    private  String audioTranscriptCompletedEventTopic;
 }

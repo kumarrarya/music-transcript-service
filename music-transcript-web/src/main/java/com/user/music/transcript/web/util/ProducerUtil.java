@@ -20,12 +20,12 @@ public class ProducerUtil {
        kafkaEventProducer.sendEvent(message, topicConfig.getAudioTranscriptResultTopic());
     }
 
-    public void publishAudioTranscriptionResult(UserMusicData userMusicData) {
+    public void publishAudioTranscriptionResult(UserMusicData userMusicData, String url) {
         String message = String.format(
                 "{\"userId\": %d, \"audioFileUrl\": \"%s\", \"transcriptUrl\": \"%s\"}",
                 userMusicData.getUserId(),
                 userMusicData.getAudioUrl(),
-                userMusicData.getTranscriptUrl()
+                url
         );
         kafkaEventProducer.sendEvent(message, topicConfig.getPublishTranscriptResultTopic());
     }

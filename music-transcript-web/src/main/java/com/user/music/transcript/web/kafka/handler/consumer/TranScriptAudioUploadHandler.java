@@ -9,7 +9,7 @@ import com.user.music.transcript.web.enums.Status;
 import com.user.music.transcript.web.kafka.eventProcessors.EventMessageProcessor;
 import com.user.music.transcript.web.model.MsgProcessResult;
 import com.user.music.transcript.web.service.IUserMusicDataService;
-import com.user.transcription.service.IStorageService;
+import com.user.music.transcript.web.service.IStorageService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +44,6 @@ public class TranScriptAudioUploadHandler implements EventMessageProcessor {
             UserMusicData userMusicData = UserMusicData.builder()
                     .userId(dbUserMusicData.get().getUserId())
                     .audioUrl(dbUserMusicData.get().getAudioUrl())
-                    .transcriptUrl(request.getTranscriptUrl())
                     .status(Status.PROCESSED)
                     .updateTime(new Date())
                     .build();

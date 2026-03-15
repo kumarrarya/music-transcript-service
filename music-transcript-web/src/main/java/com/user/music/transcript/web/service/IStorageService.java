@@ -1,6 +1,5 @@
-package com.user.transcription.service;
+package com.user.music.transcript.web.service;
 
-import io.minio.messages.UserMetadata;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;

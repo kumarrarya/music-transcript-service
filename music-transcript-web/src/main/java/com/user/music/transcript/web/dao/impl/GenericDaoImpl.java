@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,5 +37,12 @@ public class GenericDaoImpl implements IGenericDao {
        Query query = new Query();
        objectMap.forEach((k,v) -> {query.addCriteria(Criteria.where(k).is(v));});
        return Optional.ofNullable(mongoTemplate.findOne(query, clazz));
+    }
+
+    @Override
+    public <T> List<T> findAll(Map<String, Object> objectMap, Class<T> clazz) {
+        Query query = new Query();
+        objectMap.forEach((k,v) -> {query.addCriteria(Criteria.where(k).is(v));});
+        return mongoTemplate.find(query, clazz);
     }
 }

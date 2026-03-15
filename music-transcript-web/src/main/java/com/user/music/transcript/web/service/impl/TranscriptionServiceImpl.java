@@ -1,8 +1,8 @@
-package com.user.transcription.service.impl;
+package com.user.music.transcript.web.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.user.transcription.service.IStorageService;
-import com.user.transcription.service.ITranscriptionService;
+import com.user.music.transcript.web.service.IStorageService;
+import com.user.music.transcript.web.service.ITranscriptionService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;

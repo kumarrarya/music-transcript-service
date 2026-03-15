@@ -8,7 +8,7 @@ import com.user.music.transcript.web.kafka.eventProcessors.EventMessageProcessor
 import com.user.music.transcript.web.model.MsgProcessResult;
 import com.user.music.transcript.web.service.IUserMusicDataService;
 import com.user.music.transcript.web.util.ProducerUtil;
-import com.user.transcription.service.ITranscriptionService;
+import com.user.music.transcript.web.service.ITranscriptionService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,17 +42,16 @@ public class RawToTranScriptedAudioHandler implements EventMessageProcessor {
                 return MsgProcessResult.discard();
             }
             String fileName = encodedFileName(dbUserMusicData.get());
-            String transcript = transcriptionService.transcribeAudio(fileName);
-            if(ObjectUtils.isEmpty(transcript)) {
+            String transcriptTxt = transcriptionService.transcribeAudio(fileName);
+            if(ObjectUtils.isEmpty(transcriptTxt)) {
                 log.warn("Transcription result is empty for userId: {}, audioFileUrl: {}", dbUserMusicData.get().getUserId(), dbUserMusicData.get().getAudioUrl());
                 return null;
             }
             UserMusicData userMusicData = UserMusicData.builder()
                             .userId(dbUserMusicData.get().getUserId())
                             .audioUrl(dbUserMusicData.get().getAudioUrl())
-                            .transcriptUrl(transcript)
                             .build();
-            producerUtil.publishAudioTranscriptionResult(userMusicData);
+            producerUtil.publishAudioTranscriptionResult(userMusicData, transcriptTxt);
         }catch (Exception e) {
             log.error("Error processing audio transcription for userId: {}, error: {}", request.getUserId(), e.getMessage());
             return MsgProcessResult.discard();

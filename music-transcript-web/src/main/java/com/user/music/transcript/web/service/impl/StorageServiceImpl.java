@@ -1,7 +1,7 @@
-package com.user.transcription.service.impl;
+package com.user.music.transcript.web.service.impl;
 
-import com.user.transcription.constants.Constant;
-import com.user.transcription.service.IStorageService;
+import com.user.music.transcript.web.constants.Constant;
+import com.user.music.transcript.web.service.IStorageService;
 import io.minio.GetObjectArgs;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;

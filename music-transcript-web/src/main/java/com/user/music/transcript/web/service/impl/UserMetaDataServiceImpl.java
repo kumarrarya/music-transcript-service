@@ -4,8 +4,9 @@ import com.user.music.transcript.web.Entity.UserData;
 import com.user.music.transcript.web.Entity.UserMusicData;
 import com.user.music.transcript.web.Request.AudioUploadRequest;
 import com.user.music.transcript.web.dao.IGenericDao;
-import com.user.transcription.constants.Constant;
-import com.user.transcription.service.IStorageService;
+import com.user.music.transcript.web.constants.Constant;
+import com.user.music.transcript.web.service.INotificationService;
+import com.user.music.transcript.web.service.IStorageService;
 import com.user.music.transcript.web.service.IUserMusicDataService;
 import com.user.music.transcript.web.util.ProducerUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,20 +29,32 @@ public class UserMetaDataServiceImpl implements IUserMusicDataService {
     @Autowired
     ProducerUtil producerUtil;
 
+    @Autowired
+    INotificationService notificationService;
+
     @Override
     @Transactional
     public String publishRawFile(Long userId) {
         Optional<UserData> userData = iGenericDao.findById(Map.of("userId", userId), UserData.class);
         if(userData.isEmpty()) throw new IllegalArgumentException("UserData not found");
-        String audioFile = getAudioFileName(userId,Constant.RAW_AUDIO);
+        String audioFile = Constant.RAW_AUDIO + "/" + userId + "/" + UUID.randomUUID();
         return storageService.generatePresignedUrl(audioFile);
     }
 
     @Override
+    @Transactional
     public boolean upsertTranscribedFile(UserMusicData userMusicData) {
+        UUID uuid = UUID.randomUUID();
+        String audioFile = Constant.TRANSCRIBED_AUDIO + "/" + userMusicData.getUserId() + "/" + uuid;
+        userMusicData.setTranscriptUrl(uuid.toString());
         iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId(), "audioUrl", userMusicData.getAudioUrl()), UserMusicData.class);
-        String audioFile = getAudioFileName(userMusicData.getUserId(), Constant.TRANSCRIBED_AUDIO);
         return storageService.publishAudioTranscriptionResult(userMusicData.getTranscriptUrl(), audioFile);
+    }
+
+    @Override
+    public boolean upsertNotification(UserMusicData userMusicData) {
+        iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId(), "transcriptUrl", userMusicData.getTranscriptUrl()), UserMusicData.class);
+        return notificationService.sendNotification(userMusicData);
     }
 
     @Override
@@ -57,7 +70,8 @@ public class UserMetaDataServiceImpl implements IUserMusicDataService {
         return iGenericDao.findById(Map.of("userId", request.getUserId(), "audioUrl", request.getAudioFileUrl()), UserMusicData.class);
     }
 
-    private String getAudioFileName(Long userId, String prefix) {
-        return prefix + "/" + userId + "/" + UUID.randomUUID();
+    @Override
+    public Optional<UserMusicData> getUserMusicDataWithTranscriptUrl(Long userId, String transcriptUrl) {
+        return iGenericDao.findById(Map.of("userId", userId, "transcriptUrl", transcriptUrl), UserMusicData.class);
     }
 }
