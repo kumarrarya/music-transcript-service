@@ -4,9 +4,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - mongodb+srv://manishkumar8882850061_db_user:jBBRhzQjNhMkeS0c@cluster0.tpykn8l.mongodb.net/?appName=Cluster0
-      - MINIO_ENDPOINT=minio:9000
-      - ELEVENLABS_API_KEY=${sk_0cd0e8d65c2d57a9b58259e4f5c10ee0801e6bc086e702a5}
+      - MONGODB_URI=${MONGODB_URI}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
     depends_on:
       - minio
 
@@ -19,8 +19,8 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     environment:
-      - MINIO_ROOT_USER=manish
-      - MINIO_ROOT_PASSWORD=StrongPassword123
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
 
 volumes:
   minio_data:
