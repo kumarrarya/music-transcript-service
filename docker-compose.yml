@@ -1,0 +1,99 @@
+version: "3.8"
+
+services:
+
+  backend:
+    build: .
+    container_name: music-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      - minio
+    restart: always
+    extra_hosts:
+      - "minio.local:host-gateway"
+    environment:
+      - SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - S3_BUCKET=${S3_BUCKET}
+      - SQS_URL=${SQS_URL}
+      - MINIO_PUBLIC_ENDPOINT=${MINIO_PUBLIC_ENDPOINT}
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: manish
+      MINIO_ROOT_PASSWORD: StrongPassword123
+      MINIO_SERVER_URL: http://localhost:9000
+      MINIO_NOTIFY_KAFKA_ENABLE: "on"
+      MINIO_NOTIFY_KAFKA_BROKERS: "kafka:9092"
+      MINIO_NOTIFY_KAFKA_TOPIC: "audio-upload-events"
+    volumes:
+      - minio_data:/data
+
+  minio-setup:
+    image: minio/mc
+    container_name: minio-setup
+    depends_on:
+      - minio
+      - kafka
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for MinIO...';
+      sleep 20;
+
+      mc alias set local http://minio:9000 manish StrongPassword123;
+
+      echo 'Creating bucket audio-files...';
+      mc mb local/audio-files || true;
+
+      echo 'Configuring Kafka notification...';
+      mc admin config set local notify_kafka:primary enable=on,brokers=kafka:9092,topic=audio-upload-events,queue_dir="",queue_limit=0;
+
+      sleep 10;
+
+      echo 'Verifying config...';
+      mc admin config get local notify_kafka;
+
+      echo 'Adding event trigger...';
+      mc event add local/audio-files arn:minio:sqs::primary:kafka --event put || true;
+
+      echo 'Setup done!';
+      "
+volumes:
+  mongo_data:
+  minio_data:

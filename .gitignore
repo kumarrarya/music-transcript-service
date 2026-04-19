@@ -11,4 +11,8 @@ target/
 # OS files
 .DS_Store
 service-account.json
+.env.env
+music-transcript-web/src/main/resources/service-account.json
+.mvn
 .env
+

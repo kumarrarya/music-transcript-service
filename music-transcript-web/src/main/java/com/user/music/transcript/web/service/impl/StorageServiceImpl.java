@@ -2,16 +2,15 @@ package com.user.music.transcript.web.service.impl;
 
 import com.user.music.transcript.web.constants.Constant;
 import com.user.music.transcript.web.service.IStorageService;
-import io.minio.GetObjectArgs;
-import io.minio.GetPresignedObjectUrlArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
+import io.minio.*;
 import io.minio.http.Method;
 import io.minio.messages.UserMetadata;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.protocol.types.Field;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
@@ -21,11 +20,36 @@ public class StorageServiceImpl implements IStorageService {
 
     private MinioClient minioClient;
 
-    public StorageServiceImpl() {
-        this.minioClient = MinioClient.builder()
-                .endpoint("https://localhost:9000")
-                .credentials("manish", "StrongPassword123")
-                .build();
+    private MinioClient publicMinioClient;
+
+    @Value("${minio.endpoint}")
+    private String minioEndpoint;
+    @Value("${minio.access.key}")
+    private String minioAccessKey;
+    @Value("${minio.secret.key}")
+    private String minioSecretKey;
+    @Value("${minio.bucket.name}")
+    private String minioBucket;
+    @Value("${minio.public.endpoint}")
+    private String publicEndpoint;
+
+    @PostConstruct
+    public void init() {
+        try {
+            log.debug("MinIO endpoint: " + minioEndpoint); // debug
+            this.minioClient = MinioClient.builder()
+                    .endpoint(minioEndpoint)
+                    .credentials(minioAccessKey, minioSecretKey)
+                    .build();
+            String bucketName = minioBucket;
+            boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+            if (!found) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+                log.debug("Bucket created: " + bucketName);
+            }
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -34,7 +58,7 @@ public class StorageServiceImpl implements IStorageService {
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)
-                            .bucket(Constant.BUCKET)
+                            .bucket(minioBucket)
                             .object(fileName)
                             .expiry(60 * 10) // 10 minutes
                             .build()
@@ -49,7 +73,7 @@ public class StorageServiceImpl implements IStorageService {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
-                            .bucket(Constant.BUCKET)
+                            .bucket(minioBucket)
                             .object(fileName)
                             .build()
             );
@@ -65,7 +89,7 @@ public class StorageServiceImpl implements IStorageService {
 
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(Constant.BUCKET)
+                            .bucket(minioBucket)
                             .object(fileName)
                             .stream(new ByteArrayInputStream(data), data.length, -1)
                             .contentType("text/plain")
