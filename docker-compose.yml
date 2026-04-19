@@ -56,8 +56,8 @@ services:
       - "9001:9001"
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: manish
-      MINIO_ROOT_PASSWORD: StrongPassword123
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_SERVER_URL: http://localhost:9000
       MINIO_NOTIFY_KAFKA_ENABLE: "on"
       MINIO_NOTIFY_KAFKA_BROKERS: "kafka:9092"
@@ -76,7 +76,7 @@ services:
       echo 'Waiting for MinIO...';
       sleep 20;
 
-      mc alias set local http://minio:9000 manish StrongPassword123;
+      mc alias set local http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD;
 
       echo 'Creating bucket audio-files...';
       mc mb local/audio-files || true;
