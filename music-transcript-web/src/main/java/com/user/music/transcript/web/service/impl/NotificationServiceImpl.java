@@ -7,6 +7,7 @@ import com.user.music.transcript.web.Entity.UserMusicData;
 import com.user.music.transcript.web.dao.IGenericDao;
 import com.user.music.transcript.web.service.INotificationService;
 import com.user.music.transcript.web.service.IStorageService;
+import com.user.music.transcript.web.util.HelperUtil;
 import jakarta.mail.*;
 import jakarta.mail.Message;
 import jakarta.mail.internet.MimeMessage;
@@ -59,9 +60,9 @@ public class NotificationServiceImpl implements INotificationService {
                     Message.RecipientType.TO,
                     InternetAddress.parse(toEmail)
             );
-
+            String encodedFileName = HelperUtil.encodedFileNameForTranScriptedAudio(userMusicData);
             String downloadUrl = storageService.generatePresignedUrlForAudioTranscriptionGet(
-                    userMusicData.getTranscriptUrl()
+                    encodedFileName
             );
             message.setSubject("Your Transcription is Ready 🎧");
             message.setContent("""
