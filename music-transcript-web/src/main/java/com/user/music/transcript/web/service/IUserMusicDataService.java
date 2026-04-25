@@ -12,6 +12,6 @@ public interface IUserMusicDataService {
     boolean upsertRawAudioUpload(UserMusicData userMusicData);
     Optional<UserMusicData> getUserMusicData(AudioUploadRequest request);
     Optional<UserMusicData> getUserMusicDataWithTranscriptUrl(Long userId, String transcriptUrl);
-    boolean upsertTranscribedFile(UserMusicData userMusicData);
+    boolean upsertTranscribedFile(UserMusicData userMusicData, String transcriptMusic);
     boolean upsertNotification(UserMusicData userMusicData);
 }

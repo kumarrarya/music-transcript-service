@@ -7,6 +7,7 @@ import com.user.music.transcript.web.Request.AudioUploadRequest;
 import com.user.music.transcript.web.kafka.eventProcessors.EventMessageProcessor;
 import com.user.music.transcript.web.model.MsgProcessResult;
 import com.user.music.transcript.web.service.IUserMusicDataService;
+import com.user.music.transcript.web.util.HelperUtil;
 import com.user.music.transcript.web.util.ProducerUtil;
 import com.user.music.transcript.web.service.ITranscriptionService;
 import lombok.SneakyThrows;
@@ -41,11 +42,11 @@ public class RawToTranScriptedAudioHandler implements EventMessageProcessor {
                 log.warn("UserMusicData not found for userId: {}, audioFileUrl: {}", request.getUserId(), request.getAudioFileUrl());
                 return MsgProcessResult.discard();
             }
-            String fileName = encodedFileName(dbUserMusicData.get());
+            String fileName = HelperUtil.encodedFileNameForRawAudio(dbUserMusicData.get());
             String transcriptTxt = transcriptionService.transcribeAudio(fileName);
             if(ObjectUtils.isEmpty(transcriptTxt)) {
                 log.warn("Transcription result is empty for userId: {}, audioFileUrl: {}", dbUserMusicData.get().getUserId(), dbUserMusicData.get().getAudioUrl());
-                return null;
+                return MsgProcessResult.discard();
             }
             UserMusicData userMusicData = UserMusicData.builder()
                             .userId(dbUserMusicData.get().getUserId())
@@ -56,14 +57,7 @@ public class RawToTranScriptedAudioHandler implements EventMessageProcessor {
             log.error("Error processing audio transcription for userId: {}, error: {}", request.getUserId(), e.getMessage());
             return MsgProcessResult.discard();
         }
-        if(isSuccess) return MsgProcessResult.success();
-        return MsgProcessResult.discard();
-    }
-
-    private String encodedFileName(UserMusicData userMusicData) {
-        return String.format("raw-audio/%s/%s",
-                userMusicData.getUserId(),
-                userMusicData.getAudioUrl());
+        return MsgProcessResult.success();
     }
 
 }

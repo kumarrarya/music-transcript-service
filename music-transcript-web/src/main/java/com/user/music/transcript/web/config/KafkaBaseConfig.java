@@ -23,5 +23,8 @@ public class KafkaBaseConfig {
     @Value(value = KafkaConfigProperties.KAFKA_BOOTSTRAP_SERVERS)
     private String kafkaBootstrapServers;
 
+    @Value(value = KafkaConfigProperties.KAFKA_TOPIC_GROUP_FEED_DATA)
+    private String kafkaTopicGroupFeedData;
+
 
 }

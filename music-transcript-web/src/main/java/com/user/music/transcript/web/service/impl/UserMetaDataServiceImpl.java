@@ -38,17 +38,17 @@ public class UserMetaDataServiceImpl implements IUserMusicDataService {
         Optional<UserData> userData = iGenericDao.findById(Map.of("userId", userId), UserData.class);
         if(userData.isEmpty()) throw new IllegalArgumentException("UserData not found");
         String audioFile = Constant.RAW_AUDIO + "/" + userId + "/" + UUID.randomUUID();
-        return storageService.generatePresignedUrl(audioFile);
+        return storageService.generatePresignedUrlForAudioUpload(audioFile);
     }
 
     @Override
     @Transactional
-    public boolean upsertTranscribedFile(UserMusicData userMusicData) {
+    public boolean upsertTranscribedFile(UserMusicData userMusicData, String transcriptMusic) {
         UUID uuid = UUID.randomUUID();
         String audioFile = Constant.TRANSCRIBED_AUDIO + "/" + userMusicData.getUserId() + "/" + uuid;
         userMusicData.setTranscriptUrl(uuid.toString());
         iGenericDao.upsert(userMusicData, Map.of("userId", userMusicData.getUserId(), "audioUrl", userMusicData.getAudioUrl()), UserMusicData.class);
-        return storageService.publishAudioTranscriptionResult(userMusicData.getTranscriptUrl(), audioFile);
+        return storageService.publishAudioTranscriptionResult(transcriptMusic, audioFile);
     }
 
     @Override

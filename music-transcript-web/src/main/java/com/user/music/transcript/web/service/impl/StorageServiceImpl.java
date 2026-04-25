@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -53,14 +54,17 @@ public class StorageServiceImpl implements IStorageService {
     }
 
     @Override
-    public String generatePresignedUrl(String fileName) {
+    public String generatePresignedUrlForAudioUpload(String fileName) {
         try {
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)
                             .bucket(minioBucket)
                             .object(fileName)
-                            .expiry(60 * 10) // 10 minutes
+                            .expiry(60 * 10)
+                            .extraHeaders(Map.of(
+                                    "Content-Type", "audio/mpeg"
+                            ))// 10 minutes
                             .build()
             );
         }catch (Exception e) {
@@ -97,6 +101,22 @@ public class StorageServiceImpl implements IStorageService {
             );
             return true;
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String generatePresignedUrlForAudioTranscriptionGet(String fileName) {
+        try {
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(minioBucket)
+                            .object(fileName)
+                            .expiry(60 * 60) // 1 hour
+                            .build()
+            );
+        }catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

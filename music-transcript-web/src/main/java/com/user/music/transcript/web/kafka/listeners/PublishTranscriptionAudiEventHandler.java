@@ -12,7 +12,6 @@ import org.springframework.util.Assert;
 
 import java.util.Collections;
 
-import static com.user.music.transcript.web.config.KafkaConfigProperties.AUDIO_TRANSCRIPTION_RESULT_TOPIC;
 import static com.user.music.transcript.web.config.KafkaConfigProperties.PUBLISH_TRANSCRIPTION_RESULT_TOPIC;
 
 @Slf4j

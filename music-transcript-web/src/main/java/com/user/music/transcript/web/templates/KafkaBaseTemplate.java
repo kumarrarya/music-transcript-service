@@ -41,7 +41,13 @@ public abstract class KafkaBaseTemplate {
     public void handleMessage(String message,String topic, Acknowledgment ack) {
         boolean success = processMessage(message, topic);
         if (success) {
-            ack.acknowledge();
+            try {
+                log.debug("Acknowledging message for topic {}: {}", topic, message);
+                ack.acknowledge();
+                log.debug("Acknowledged message for topic {}", topic);
+            } catch (Exception e) {
+                log.error("Failed to acknowledge message for topic {}", topic, e);
+            }
         }
     }
 

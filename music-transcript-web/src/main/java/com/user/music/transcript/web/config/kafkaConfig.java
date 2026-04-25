@@ -40,14 +40,16 @@ public class kafkaConfig {
         factory.setConcurrency(concurrency);
         factory.setBatchListener(batchListener);
         factory.setConsumerFactory(consumerFactory(maxPollRecords, maxInterval, kafkaBootAddressConfig));
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
+        // Use MANUAL_IMMEDIATE so that acknowledge() commits the offset immediately
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         return factory;
     }
 
     public ConsumerFactory<String, String> consumerFactory(String maxPollRecords, int maxInterval, String kafkaBootAddressConfig){
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootAddressConfig);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "transcription-group");
+        // Use configured group id from KafkaBaseConfig to keep listener groupIds consistent
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, kafkaBaseConfig.getKafkaTopicGroupFeedData());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);

@@ -47,7 +47,7 @@ public class TranScriptAudioUploadHandler implements EventMessageProcessor {
                     .status(Status.PROCESSED)
                     .updateTime(new Date())
                     .build();
-            isSuccess = userMusicDataService.upsertTranscribedFile(userMusicData);
+            isSuccess = userMusicDataService.upsertTranscribedFile(userMusicData,request.getTranscriptUrl());
         }catch (Exception e){
             log.info("Exception while processing transcript audio upload event, message: {}, error: {}", message, e.getMessage());
             return MsgProcessResult.discard();
