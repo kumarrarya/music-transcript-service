@@ -94,8 +94,11 @@ services:
       echo 'Verifying config...';
       mc admin config get local notify_kafka;
 
-      echo 'Adding event trigger...';
+      echo 'Adding PRIMARY event trigger...';
       mc event add local/audio-files arn:minio:sqs::primary:kafka --event put || true;
+
+      echo 'Adding SECONDARY event trigger...';
+      mc event add local/audio-files arn:minio:sqs::secondary:kafka --event put || true;
 
       echo 'Setup done!';
       "
