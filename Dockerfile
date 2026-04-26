@@ -1,26 +1,15 @@
-# ---------- BUILD STAGE ----------
-FROM eclipse-temurin:21-jdk-jammy AS builder
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /build
 
-# Install Maven
-RUN apt-get update && apt-get install -y maven
+COPY pom.xml .
+COPY src ./src
 
-# Copy everything
-COPY . .
-
-# Build project
 RUN mvn clean package -DskipTests
 
-
-# ---------- RUNTIME STAGE ----------
 FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
+COPY --from=builder /build/target/*.jar app.jar
 
-# Copy jar (adjust module if needed)
-COPY --from=builder /build/music-transcript-web/target/*.jar app.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
