@@ -31,8 +31,6 @@ public class StorageServiceImpl implements IStorageService {
     private String minioSecretKey;
     @Value("${minio.bucket.name}")
     private String minioBucket;
-    @Value("${minio.public.endpoint}")
-    private String publicEndpoint;
 
     @PostConstruct
     public void init() {
